@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documento</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='aluno.css')}}">
+</head>
+<body>
+
+  <div class="grid-container">
+    <div class="card">
+      <h2>Answer Question</h2>
+      <!-- Campos do formulário de resposta -->
+      <form id="responderExameForm">
+        <label for="exameId">Exame ID:</label>
+        <input type="text" id="exameId" name="exameId" required>
+        <br><br>
+        <label for="respostas">Respostas:</label>
+        <br>
+        <textarea id="respostas" name="respostas" rows="5" required></textarea>
+        <br><br>
+        <button type="submit">Responder Exame</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Generate Report</h2>
+      <form id="reportForm">
+        <label for="exameId">Exam ID:</label>
+        <input type="text" id="exameId" name="exameId" required>
+        <br><br>
+        <button type="submit">Generate Report</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // Envio do formulário de resposta
+    $(document).ready(function() {
+      $('#responderExameForm').submit(function(event) {
+        event.preventDefault();
+    
+        var form = $(this);
+        var exameId = form.find('#exameId').val();
+        var respostas = form.find('#respostas').val();
+    
+        var jsonData = {
+          respostas: JSON.parse(respostas)
+        };
+    
+        $.ajax({
+          type: 'POST',
+          url: '/exames/' + exameId + '/responder',
+          data: JSON.stringify(jsonData),
+          contentType: 'application/json',
+          success: function(response) {
+            alert(response.message);
+            form[0].reset();
+          },
+          error: function(xhr, textStatus, error) {
+            var errorMessage = xhr.responseJSON.error;
+            alert(errorMessage);
+          }
+        });
+      });
+    });
+
+    // Envio do formulário de relatório
+    $(document).ready(function() {
+      $('#reportForm').submit(function(event) {
+        event.preventDefault();
+    
+        var form = $(this);
+        var exameId = form.find('#exameId').val();
+    
+        $.ajax({
+          type: 'GET',
+          url: '/exames/' + exameId + '/relatorio',
+          success: function(response) {
+            var respostas = response.respostas;
+    
+            // Processar os dados do relatório conforme necessário
+            console.log(respostas);
+    
+            // Resetar o formulário
+            form[0].reset();
+          },
+          error: function(xhr, textStatus, error) {
+            var errorMessage = xhr.responseJSON.error;
+            alert(errorMessage);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
